@@ -1,0 +1,27 @@
+{
+  "name": "readysetplay",
+  "version": "1.0.0",
+  "description": "Play games with friends!",
+  "main": "server.js",
+  "dependencies": {
+    "websocket": "1.0.31"
+  },
+  "devDependencies": {
+    "http-server": "0.12.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server-start": "node ./server/server.js",
+    "client-start": "http-server -p 9001 -o"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mjavaid/ReadySetPlay.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mjavaid/ReadySetPlay/issues"
+  },
+  "homepage": "https://github.com/mjavaid/ReadySetPlay#readme"
+}
