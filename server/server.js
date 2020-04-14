@@ -44,19 +44,23 @@ wsServer.on('request', function(request) {
 
   conn.on('message', function(message) {
     if (message.type === 'utf8') {
+      let msgText;
+      try {
+        msgText = JSON.parse(message.utf8Data);
+      } catch (e) { return; }
       if (!userName) {
-        userName = htmlEntities(message.utf8Data);
+        userName = msgText; // message htmlEntities(message.utf8Data);
         userColor = colors.shift();
         conn.sendUTF(
           JSON.stringify({ type: 'color', data: userColor })
         );
         console.log(`${(new Date())} User is known as: ${userName} with ${userColor} color`);
       } else {
-        console.log(`${(new Date())} Received message from ${userName}: ${message.utf8Data}`);
+        console.log(`${(new Date())} Received message from ${userName}: ${msgText}`);
 
         const obj = {
           time: (new Date()).getTime(),
-          text: htmlEntities(message.utf8Data),
+          text: msgText, // htmlEntities(message.utf8Data),
           author: userName,
           color: userColor
         };

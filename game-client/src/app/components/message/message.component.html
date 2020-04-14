@@ -1,0 +1,9 @@
+<div class="message">
+  <div class="message-meta">
+    <span class="author" [ngStyle]="{'color': message.author.color}">
+      {{authorName(message.author)}}
+    </span>
+      @ <span class="timestamp">{{message.timestamp}}</span>
+  </div>
+  <div class="message-text">{{message.message}}</div>
+</div>

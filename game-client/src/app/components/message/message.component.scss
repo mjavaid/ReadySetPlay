@@ -1,0 +1,17 @@
+.message {
+  background-color: #fff;
+  border: 1px solid #efefef;
+  border-radius: 5px;
+  box-shadow: -1px 1px 3px 0px rgba(78, 57, 57, 0.25);
+  margin: 10px 0;
+  width: fit-content;
+  padding: 10px;
+
+  .message-meta {
+    font-size: 0.95em;
+  }
+  .message-text {
+    font-size: 1.2em;
+    margin-top: 10px;
+  }
+}

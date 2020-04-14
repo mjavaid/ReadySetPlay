@@ -1,0 +1,11 @@
+<!-- <router-outlet></router-outlet> -->
+
+<div class="chat-box">
+  <div class="messages">
+    <rsg-message *ngFor="let message of messages" [message]="message"></rsg-message>
+  </div>
+  <div class="input-container">
+    <span class="info-text">{{infoMsg}}: </span>
+    <input type="text" name="message-input" [disabled]="disable()" [(ngModel)]="chatMessage" (keyup)="onKeyUp($event)" />
+  </div>
+</div>

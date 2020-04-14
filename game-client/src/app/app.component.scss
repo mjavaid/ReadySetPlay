@@ -1,0 +1,33 @@
+.chat-box {
+  height: 100%;
+  margin: 10px;
+  border: 1px solid grey;
+  padding: 15px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+
+  .messages {
+    border-radius: 5px;
+    padding: 10px;
+    background-color: yellowgreen;
+  }
+
+  .input-container {
+    padding: 10px 0;
+    display: flex;
+    font-size: 1.3em;
+    align-items: center;
+
+    span.info-text {
+      margin-right: 10px;
+    }
+    input {
+      flex-grow: 1;
+      padding: 10px;
+      background-color: #fbfbfb;
+      border: 1px solid;
+    }
+  }
+}
