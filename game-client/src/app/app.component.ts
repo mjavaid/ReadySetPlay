@@ -22,7 +22,7 @@ export class AppComponent {
   constructor(
     private restService: RestService,
     private userService: UserService) {
-    this.chatWebSocket = webSocket('ws://127.0.0.1:1337');
+    this.chatWebSocket = webSocket('ws://127.0.0.1:1337/game-socket');
     this.chatWebSocket.subscribe(msg => {
       this.handleMessage(msg);
     },
