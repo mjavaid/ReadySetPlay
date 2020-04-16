@@ -2,6 +2,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
 import { AddressInfo } from 'net';
+import { DbStore } from './dbstore';
 
 process.title = 'game-server';
 
@@ -9,6 +10,8 @@ const webSocketsServerPort = 1337,
   clients: any = [],
   colors: string[] = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
 let history: any = [];
+
+const dbstore = new DbStore();
 
 const app = express();
 
@@ -20,6 +23,9 @@ const wss = new WebSocket.Server({
   server,
   path: '/game-socket'
 });
+
+console.log('CHAT HISTORY:');
+dbstore.getMessages((res: any) => { console.log(res); });
 
 wss.on('connection', (conn: WebSocket) => {
   clients.push(conn) - 1;
@@ -46,6 +52,10 @@ wss.on('connection', (conn: WebSocket) => {
       conn.send(
         JSON.stringify({ type: 'color', data: userColor })
       );
+      dbstore.saveUser({
+        name: userName, color: userColor },
+        (res: any) => { console.log('USER SAVED!', res);
+      });
       console.log(`${(new Date())} User is known as: ${userName} with ${userColor} color`);
     } else {
       console.log(`${(new Date())} Received message from ${userName}: ${msgText}`);
