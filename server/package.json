@@ -9,7 +9,6 @@
     "server:build:manual": "./node_modules/.bin/tsc",
     "server:build:webpack": "webpack --mode development",
     "server:run:node": "node ./dist/server.js",
-
     "server:run:nodemon": "nodemon ./dist/server.js",
     "server:build:dev": "webpack --watch --mode development --config webpack.config.js",
     "server:build:prod": "webpack --watch --mode production --config webpack.config.js",
@@ -19,6 +18,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "4.17.1",
+    "sqlite3": "4.1.1",
     "ws": "7.2.3"
   },
   "devDependencies": {

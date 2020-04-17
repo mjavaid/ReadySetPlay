@@ -40,7 +40,7 @@ export class AppComponent {
     } else if (json.type === 'history') {
       this.messages = json.data.map(d => {
         return new Message(
-          d.text, new Author(d.author, d.color), d.time
+          d.message, new Author(d.name, d.color), d.sent_on
         );
       });
     } else if (json.type === 'message') {
