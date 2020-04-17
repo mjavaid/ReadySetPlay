@@ -62,13 +62,14 @@ wss.on('connection', (conn: WebSocket) => {
 
       dbstore.getUserByName(msgText, (found: User) => {
         if (found) {
-          console.log('FOUND!', found);
+
           user = found;
           conn.send(
             JSON.stringify({ type: 'color', data: user.color })
           );
+
         } else {
-          console.log('DID NOT FIND :(');
+
           const color = getRandomColor();
           const ts = (new Date()).getTime();
           user = new User(msgText, color, ts, ts, 'demo', 'demo');
@@ -76,37 +77,21 @@ wss.on('connection', (conn: WebSocket) => {
             user,
             (userId: number) => {
               user.id = userId;
+              console.log(`${(new Date())} User is known as: ${user.name} with ${user.color} color`);
               conn.send(
                 JSON.stringify({ type: 'color', data: color })
               );
             }
           );
+
         }
       });
-
-      const color = colors.shift() || 'pink';
-      const ts = (new Date()).getTime();
-      user = new User(msgText, color, ts, ts, 'demo', 'demo');
-      conn.send(
-        JSON.stringify({ type: 'color', data: color })
-      );
-      dbstore.saveUser(
-        user,
-        (userId: number) => { user.id = userId; }
-      );
-      console.log(`${(new Date())} User is known as: ${user.name} with ${user.color} color`);
 
     } else {
 
       console.log(`${(new Date())} Received message from ${user.name}: ${msgText}`);
 
-      const obj = new Message(msgText, user.id, (new Date()).getTime()) ;
-      // {
-      //   time: (new Date()).getTime(),
-      //   text: msgText,
-      //   author: userName,
-      //   color: userColor
-      // };
+      const obj = new Message(msgText, user.id, (new Date()).getTime());
       dbstore.saveMessage(obj, (msg: Message, msgId: number) => {
         msg.id = msgId;
         history.push(msg);
