@@ -2,18 +2,32 @@ import * as express from 'express';
 import * as http from 'http';
 import * as WebSocket from 'ws';
 import { AddressInfo } from 'net';
-import { DbStore } from './dbstore';
+
+import { DbStore } from './dbstore/dbstore';
+import {
+  User, Message
+} from './dbstore/models/index';
 
 process.title = 'game-server';
 
 const webSocketsServerPort = 1337,
   clients: any = [],
   colors: string[] = [ 'red', 'green', 'blue', 'magenta', 'purple', 'plum', 'orange' ];
-let history: any = [];
-
+let history: Message[] = [],
+  lastColorIdx = -1;
 const dbstore = new DbStore();
 
+const getRandomColor = function() {
+  lastColorIdx++
+  return colors[lastColorIdx % colors.length];
+};
+
 const app = express();
+
+console.log('ABOUT TO GET MESSAGES ... ');
+dbstore.getMessages((messages: any) => {
+  history = messages;
+});
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
@@ -24,13 +38,9 @@ const wss = new WebSocket.Server({
   path: '/game-socket'
 });
 
-console.log('CHAT HISTORY:');
-dbstore.getMessages((res: any) => { console.log(res); });
-
 wss.on('connection', (conn: WebSocket) => {
   clients.push(conn) - 1;
-  let userName: string,
-    userColor: string;
+  let user: User;
 
   console.log(`${(new Date())} Connection accepted.`);
 
@@ -42,37 +52,72 @@ wss.on('connection', (conn: WebSocket) => {
 
   conn.on('message', (message: string) => {
     console.log('MESSAGE CAME IN:', message);
-    let msgText;
+
+    let msgText: any;
     try {
       msgText = JSON.parse(message);
     } catch (e) { return; }
-    if (!userName) {
-      userName = msgText;
-      userColor = colors.shift() || 'pink';
+
+    if (!user) {
+
+      dbstore.getUserByName(msgText, (found: User) => {
+        if (found) {
+          console.log('FOUND!', found);
+          user = found;
+          conn.send(
+            JSON.stringify({ type: 'color', data: user.color })
+          );
+        } else {
+          console.log('DID NOT FIND :(');
+          const color = getRandomColor();
+          const ts = (new Date()).getTime();
+          user = new User(msgText, color, ts, ts, 'demo', 'demo');
+          dbstore.saveUser(
+            user,
+            (userId: number) => {
+              user.id = userId;
+              conn.send(
+                JSON.stringify({ type: 'color', data: color })
+              );
+            }
+          );
+        }
+      });
+
+      const color = colors.shift() || 'pink';
+      const ts = (new Date()).getTime();
+      user = new User(msgText, color, ts, ts, 'demo', 'demo');
       conn.send(
-        JSON.stringify({ type: 'color', data: userColor })
+        JSON.stringify({ type: 'color', data: color })
       );
-      dbstore.saveUser({
-        name: userName, color: userColor },
-        (res: any) => { console.log('USER SAVED!', res);
-      });
-      console.log(`${(new Date())} User is known as: ${userName} with ${userColor} color`);
+      dbstore.saveUser(
+        user,
+        (userId: number) => { user.id = userId; }
+      );
+      console.log(`${(new Date())} User is known as: ${user.name} with ${user.color} color`);
+
     } else {
-      console.log(`${(new Date())} Received message from ${userName}: ${msgText}`);
 
-      const obj = {
-        time: (new Date()).getTime(),
-        text: msgText,
-        author: userName,
-        color: userColor
-      };
-      history.push(obj);
-      history = history.slice(-100);
+      console.log(`${(new Date())} Received message from ${user.name}: ${msgText}`);
 
-      const json = JSON.stringify({ type: 'message', data: obj });
-      clients.forEach((client: any) => {
-        client.send(json);
+      const obj = new Message(msgText, user.id, (new Date()).getTime()) ;
+      // {
+      //   time: (new Date()).getTime(),
+      //   text: msgText,
+      //   author: userName,
+      //   color: userColor
+      // };
+      dbstore.saveMessage(obj, (msg: Message, msgId: number) => {
+        msg.id = msgId;
+        history.push(msg);
+        history = history.slice(-100);
+
+        const json = JSON.stringify({ type: 'message', data: msg });
+        clients.forEach((client: any) => {
+          client.send(json);
+        });
       });
+
     }
   });
 });
